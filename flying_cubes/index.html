@@ -1,3 +1,5 @@
+
+<!-- TODO update glMatrix library and use official methods -->
 <html>
 
 <head>
@@ -13,7 +15,8 @@
 
     varying vec4 vColor;
 
-    void main(void) {
+    void main(void) 
+	{
         gl_FragColor = vColor;
     }
 </script>
@@ -27,7 +30,8 @@
 
     varying vec4 vColor;
 
-    void main(void) {
+    void main(void)
+	{
         gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
         vColor = aVertexColor;
     }
@@ -38,15 +42,19 @@
     var gl;
 
 	// Create WebGL context
-    function initGL(canvas) {
-        try {
+    function initGL(canvas)
+	{
+        try
+		{
             gl = canvas.getContext("experimental-webgl");
             gl.viewportWidth = canvas.width;
             gl.viewportHeight = canvas.height;
         } catch (e) {
+			// TODO
         }
-        if (!gl) {
-            alert("Could not initialise WebGL, sorry :-(");
+        if (!gl)
+		{
+            alert("Could not initialise WebGL");
         }
     }
 
@@ -55,23 +63,28 @@
 	\*-------------------------------------------------------------------------*/
 
 	// Get GLSL source code string from DOM
-    function getShader(gl, id) {
+    function getShader(gl, id)
+	{
         var shaderScript = document.getElementById(id);
-        if (!shaderScript) {
+        if (!shaderScript)
+		{
             return null;
         }
 
         var str = "";
         var k = shaderScript.firstChild;
-        while (k) {
-            if (k.nodeType == 3) {
+        while (k) 
+		{
+            if (k.nodeType == 3) 
+			{
                 str += k.textContent;
             }
             k = k.nextSibling;
         }
 
         var shader;
-        if (shaderScript.type == "x-shader/x-fragment") {
+        if (shaderScript.type == "x-shader/x-fragment")
+		{
             shader = gl.createShader(gl.FRAGMENT_SHADER);
         } else if (shaderScript.type == "x-shader/x-vertex") {
             shader = gl.createShader(gl.VERTEX_SHADER);
@@ -82,7 +95,8 @@
         gl.shaderSource(shader, str);
         gl.compileShader(shader);
 
-        if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+        if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS))
+		{
             alert(gl.getShaderInfoLog(shader));
             return null;
         }
@@ -93,7 +107,8 @@
     var shaderProgram;
 
 	// Compile and link shaders into a program object for use by WebGL context
-    function initShaders() {
+    function initShaders() 
+	{
         var fragmentShader = getShader(gl, "shader-fs");
         var vertexShader = getShader(gl, "shader-vs");
 
@@ -102,7 +117,8 @@
         gl.attachShader(shaderProgram, fragmentShader);
         gl.linkProgram(shaderProgram);
 
-        if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
+        if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS))
+		{
             alert("Could not initialise shaders");
         }
 
@@ -128,15 +144,18 @@
     var pMatrix = mat4.create();
 
 	// Push
-    function mvPushMatrix() {
+    function mvPushMatrix()
+	{
         var copy = mat4.create();
         mat4.set(mvMatrix, copy);
         mvMatrixStack.push(copy);
     }
 
 	// Pop
-    function mvPopMatrix() {
-        if (mvMatrixStack.length == 0) {
+    function mvPopMatrix()
+	{
+        if (mvMatrixStack.length == 0)
+		{
             throw "Invalid popMatrix!";
         }
         mvMatrix = mvMatrixStack.pop();
@@ -145,13 +164,15 @@
 	/*-------------------------------------------------------------------------*\
 		// TODO	
 	\*-------------------------------------------------------------------------*/
-    function setMatrixUniforms() {
+    function setMatrixUniforms()
+	{
         gl.uniformMatrix4fv(shaderProgram.pMatrixUniform, false, pMatrix);
         gl.uniformMatrix4fv(shaderProgram.mvMatrixUniform, false, mvMatrix);
     }
 
 	// Convert degrees to radians
-    function degToRad(degrees) {
+    function degToRad(degrees)
+	{
         return degrees * Math.PI / 180;
     }
 
@@ -163,8 +184,8 @@
     var cubeVertexIndexBuffer;
 
 	// Create buffer object and bind them to our context (Load into GPU)
-    function initBuffers() {
-
+    function initBuffers()
+	{
         cubeVertexPositionBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, cubeVertexPositionBuffer);
         vertices = [
@@ -220,9 +241,11 @@
         ];
         var unpackedColors = [];
 		// Loop to set rgba color values for all 24 vertices in a less repetitive way
-        for (var i in colors) {
+        for (var i in colors)
+		{
             var color = colors[i];
-            for (var j=0; j < 4; j++) {
+            for (var j=0; j < 4; j++)
+			{
                 unpackedColors = unpackedColors.concat(color);
             }
         }
@@ -254,7 +277,8 @@
 
 	// Set viewport, projection matrix, mv matrix zoom, and call .draw on 
 	// each cube
-    function drawScene() {
+    function drawScene()
+	{
         gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
@@ -292,11 +316,6 @@
 
 	Cube.prototype =
 	{
-		// TODO Are these default values necessary?
-		pos : vec3.create( {0:0, 1:0, 2:0} ),
-		vel : vec3.create( {0:0, 1:0, 2:0} ),
-		rotation_vector : vec3.create( {0:0, 1:0, 2:0} ),
-		rotation_speed_randomizer : Math.random(),
 		scale : 1, // Use to change cube size + calculate mass
 
 		// Set MV Matrix to cubes position and call renderCube
@@ -331,20 +350,20 @@
 			// Update x,y,z coords. delta = vel * time. Bounce off walls of WORLD
 			for( var i = 0; i < 3; i++)
 			{
-				if( Math.abs(this.pos[i]) > MAX_COORD ) 
+				if( Math.abs(this.pos[i]) > MAX_COORD) 
 				{
 					this.vel[i] *= 0.75; // Lose energy when bouncing 
-					this.vel[i] *= -1; 
+					this.vel[i] *= -1; // Reverse direction
 					this.pos[i] = (this.pos[i] >= 0) ? MAX_COORD : -MAX_COORD;
 				}
 				this.pos[i] += this.vel[i] * effective_frames_passed;
 			}
 		},
 
-		// Sum all accelerations (Forces) on this cube. For now just gravity + burst. TODO more?
+		// Sum all accelerations (Forces) on this cube.
 		sumAccelerations : function()
 		{
-			var sum_accel = vec3.create({0:0, 1:0, 2:0});
+			var sum_accel = vec3.create();
 			
 			// Add Black hole acceleration vector. Tied to c key. 
 			if(current_pressed_keys[67]) 			
@@ -406,28 +425,31 @@
 				2 : 0
 			});
 			var vel = vec3.create({
-				0 : (Math.random() - Math.random()) * 0.2,
+				0 : (Math.random() - Math.random()) * 0.6,
 				1 : (Math.random() - Math.random()) * 0.6,
-				2 : (Math.random() - Math.random()) * 0.8
+				2 : (Math.random() - Math.random()) * 0.6
 			});
 			var rotation_vector = vec3.create({
 				0 : Math.random(),
 				1 : Math.random(),
 				2 : Math.random() 
 			});
-			cubes.push( new Cube(pos, vel, rotation_vector, Math.random()) );
+			cubes.push(new Cube(pos, vel, rotation_vector, Math.random()));
 		}
 	}
 	
 	/*-------------------------------------------------------------------------*\
 		ANIMATION
 	\*-------------------------------------------------------------------------*/
+
     var lastTime = 0;
 
 	// Update object states based on elapsed time
-    function animate() {
+    function animate()
+	{
         var timeNow = new Date().getTime();
-        if (lastTime != 0) {
+        if (lastTime != 0)
+		{
             var elapsed = timeNow - lastTime;
 
             rCube -= (75 * elapsed) / 1000.0;
@@ -442,7 +464,8 @@
         lastTime = timeNow;
     }
 
-    function tick() {
+    function tick()
+	{
         requestAnimFrame(tick);
 		handleKeys();
         drawScene();
@@ -454,7 +477,6 @@
 	\*-------------------------------------------------------------------------*/
 	
 	// Add 2 Vec3 Objects and return the sum vector
-	// TODO update glMatrix library and use official methods
 	function addVectors(v1, v2)
 	{
 		var v3 = vec3.create();
@@ -481,8 +503,8 @@
 	\*-------------------------------------------------------------------------*/
 	current_pressed_keys = 	{};
 
-	// Add held keys to currently_pressed_keys dictionary or toggle non-held-bound
-	// boolean variables
+	// Add held keys to currently_pressed_keys dictionary and toggles gravity 
+	// global boolean 
 	function handleKeyDown(event)
 	{
 		// Pressing g toggles gravity global boolean
@@ -497,8 +519,7 @@
 		current_pressed_keys[event.keyCode] = false;
 	}
 
-	// TODO
-	// Use currently pressed keys to modify the gravity vector
+	// Use currently pressed keys to modify the scene tilt and zoom 
 	function handleKeys()
 	{
 		// Arrow up: tilt scene around the x axis 
@@ -537,10 +558,9 @@
 			zoom += 1;
 		}
 
-		// c : creates black hold force at origin. Handled in Cube.animate 
-
-		// b: apply breaks! Handled in Cube.animate
-
+		// The following are handled in Cube.animate:
+		// c: applies black hold force at origin. 
+		// b: decelerate cubes. 
 	}
 
 	/*-------------------------------------------------------------------------*\
@@ -552,14 +572,15 @@
 	var NUM_CUBES = 60;
 	var effectiveFPMS = 60 / 1000; // Calculate frames passed smoothly based on time
 	var MAX_VELOCITY = 0.01;
-	var gravity = vec3.create({0:0, 1:-0.01, 2:0});
-	var gravity_on = true;
+	var gravity = vec3.create({0:0, 1:-0.02, 2:0});
+	var gravity_on = false;
 	var x_axis_tilt = 0;
 	var y_axis_tilt = 0;
 	var zoom = -50;	
 
 
-    function webGLStart() {
+    function webGLStart()
+	{
         var canvas = document.getElementById("lesson04-canvas");
         initGL(canvas);
         initShaders()
@@ -575,17 +596,12 @@
 
         tick();
     }
-
 </script>
-
 
 </head>
 
-
 <body onload="webGLStart();">
-
     <canvas id="lesson04-canvas" style="border: none;" width="720" height="600"></canvas>
-
 </body>
 
 </html>
