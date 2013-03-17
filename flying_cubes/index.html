@@ -6,6 +6,7 @@
 <title>Flying Cubes!</title>
 <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
 
+<link rel="stylesheet" href="css/style.css">
 <script type="text/javascript" src="js/glMatrix-0.9.5.min.js"></script>
 <script type="text/javascript" src="js/webgl-utils.js"></script>
 <!-- TODO Replace with requestAnimFrame Paul Irish Shim? -->
@@ -136,6 +137,13 @@
         shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
     }
 
+	// Load javascript matrices to the shaders on the GPU
+    function setMatrixUniforms()
+	{
+        gl.uniformMatrix4fv(shaderProgram.pMatrixUniform, false, pMatrix);
+        gl.uniformMatrix4fv(shaderProgram.mvMatrixUniform, false, mvMatrix);
+    }
+
 	/*-------------------------------------------------------------------------*\
 		Model-View Matrix State Stack 
 	\*-------------------------------------------------------------------------*/
@@ -159,21 +167,6 @@
             throw "Invalid popMatrix!";
         }
         mvMatrix = mvMatrixStack.pop();
-    }
-
-	/*-------------------------------------------------------------------------*\
-		// TODO	
-	\*-------------------------------------------------------------------------*/
-    function setMatrixUniforms()
-	{
-        gl.uniformMatrix4fv(shaderProgram.pMatrixUniform, false, pMatrix);
-        gl.uniformMatrix4fv(shaderProgram.mvMatrixUniform, false, mvMatrix);
-    }
-
-	// Convert degrees to radians
-    function degToRad(degrees)
-	{
-        return degrees * Math.PI / 180;
     }
 
 	/*-------------------------------------------------------------------------*\
@@ -297,7 +290,6 @@
 		}
     }
 
-
 	/*-------------------------------------------------------------------------*\
 		CUBE CLASS 
 	\*-------------------------------------------------------------------------*/
@@ -340,7 +332,7 @@
 		// Modify each cubes position based on its velocity, position, and elapsedTime
 		animate : function(elapsed)
 		{
-			var effective_frames_passed = effectiveFPMS * elapsed;
+			var effective_frames_passed = EFFECTIVE_FPMS * elapsed;
 
 			// Update velocity vector with acceleration forces (v = v0 + at)
 			var sum_accel_vect = vec3.create();
@@ -475,6 +467,8 @@
 	/*-------------------------------------------------------------------------*\
 		HELPERS	
 	\*-------------------------------------------------------------------------*/
+
+	// TODO update gl-matrix library to 2.0 and remove all the hacky vector math
 	
 	// Add 2 Vec3 Objects and return the sum vector
 	function addVectors(v1, v2)
@@ -498,12 +492,18 @@
 		return res;
 	}
 	
+	// Convert degrees to radians
+    function degToRad(degrees)
+	{
+        return degrees * Math.PI / 180;
+    }
+
 	/*-------------------------------------------------------------------------*\
 		INPUT HANDLERS	
 	\*-------------------------------------------------------------------------*/
 	current_pressed_keys = 	{};
 
-	// Add held keys to currently_pressed_keys dictionary and toggles gravity 
+	// Add held keys to currently_pressed_keys dictionary and toggle gravity 
 	// global boolean 
 	function handleKeyDown(event)
 	{
@@ -570,8 +570,7 @@
 	// SETTINGS
 	var MAX_COORD = 25; // (N+N)x(N+N)x(N+N) cube world
 	var NUM_CUBES = 60;
-	var effectiveFPMS = 60 / 1000; // Calculate frames passed smoothly based on time
-	var MAX_VELOCITY = 0.01;
+	var EFFECTIVE_FPMS = 60 / 1000; // Calculate frames passed smoothly based on time
 	var gravity = vec3.create({0:0, 1:-0.02, 2:0});
 	var gravity_on = false;
 	var x_axis_tilt = 0;
@@ -601,7 +600,11 @@
 </head>
 
 <body onload="webGLStart();">
-    <canvas id="lesson04-canvas" style="border: none;" width="720" height="600"></canvas>
+    <div id="wrapper">
+        <canvas id="lesson04-canvas" style="border: none;" width="720" height="560"></canvas>
+	<p> CONTROLS: g - toggle gravity. b - slow the cubes.
+	arrows - rotate and tilt view. TODO - zoom in and out.</p>
+    </div> <!-- end #wrapper -->
 </body>
 
 </html>
