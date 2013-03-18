@@ -71,7 +71,10 @@ table
 
 body
 {
-	font-family: Calibri, Arial;
+	background-color: #BDEDFF;
+	font-family: 'Ubuntu', sans-serif;
+	font-size: 13pt;
+	color: #053749;
 }
 
 #wrapper
@@ -79,6 +82,14 @@ body
 	width: 860px;
 	margin: 0px auto;
 	text-align: center;
+}
+
+#wrapper p
+{
+	width: 500px;
+	margin: 0px auto;
+	text-align: center;
+	line-height: 120%;
 }
 
 canvas
