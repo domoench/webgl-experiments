@@ -2,7 +2,7 @@ WebGL Experiments
 ==================
 This repository contains my experiments learning 3D graphics and WebGL.
 
-Flying Cubes
+[Flying Cubes] [1]
 --------
 An interactive simulation of flying cubes written in WebGL. The user can
 turn gravity on and off, simulate black hole gravity at the center of the
@@ -35,3 +35,5 @@ Many thanks to the following resources:
 * www.http://learningwebgl.com
 * http://www.opengl-tutorial.org/ 
 * WebGL: Up And Running - by Tony Parisi
+
+[1]: http://flyingcubes.davidmoench.com
